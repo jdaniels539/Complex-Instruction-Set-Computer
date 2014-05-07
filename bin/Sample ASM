@@ -1,0 +1,24 @@
+@start:
+	LDR 3,0,54
+	JMP 0, @test, 0
+	
+@test:
+	STR 2,0,43
+	JMP 0, @start, 0
+
+
+	XOR 3, 3					// r3 = 0;						// r3存放字符起始地址
+	AIR 3, CHAR_INIT_ADDR		// r3 = r3 + CHAR_INIT_ADDR;	// 设置字符起始地址
+	STR 3, 1, charAddr			// [x0 + charAddr] = r3;	// 将r3的内容保存到内存charAddr处
+@readString:
+	IN 0, 0						// r0 = getchar();			// 从键盘读一个字符到r0
+
+	STR 0, 1, charAddr, 1		// [x0 + charAddr] = r0;	// 将读入的字符存至内存charAddr处	
+	AIR 3, 2					// r3 = r3 + 2;				// 一个内存block为16bits = 2KB
+	STR 3, 1, charAddr, 1		// [x0 + charAddr] = r3; 	// 将r3的内容保存到内存charAddr处
+
+	CHK 1, 0					// r1 = get_keyboard_status(); 		//检查是否还有未读完的字符
+	JNE 1, @readString			// if (r1 != 0) then goto @readString;	// 如果r1不为0说明还有字符, 转至@readString继续读
+
+	XOR 0, 0					// r0 = 0;				
+	STR 0, 1, charAddr, 1		// [x0 + charAddr] = r0;	// 给字符串末尾补\0
